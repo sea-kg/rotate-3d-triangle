@@ -45,8 +45,6 @@ function rotate_x_axis(p1, p2, rot) {
     return ret;
 }
 
-
-
 function angel_y_axis(p1, p2) {
     var rot = angel(
         p1.x, p1.z,
@@ -208,12 +206,17 @@ function rotate_triangle_to_z_axis(tr1) {
     // ret.p3 = rotate_x_axis(ret.p1, ret.p3, rot);
 
     // parallel to z
-    // rot_x = angel_x_axis(ret.p1, ret.p2);
-    // rot_y = angel_y_axis(ret.p1, ret.p2);
-    // rot_z = angel_z_axis(ret.p1, ret.p2);
-// 
-    // ret.p2 = rotate_xyz_axis(ret.p1, ret.p2, rot_x, rot_y, rot_z);
-    // ret.p3 = rotate_xyz_axis(ret.p1, ret.p3, rot_x, rot_y, rot_z);
+    rot_x = angel_x_axis(ret.p1, ret.p2);
+    rot_y = angel_y_axis(ret.p1, ret.p2);
+    rot_z = 0.0; // angel_z_axis(ret.p1, ret.p2);
+    ret.p2 = rotate_xyz_axis(ret.p1, ret.p2, rot_x, rot_y, rot_z);
+    ret.p3 = rotate_xyz_axis(ret.p1, ret.p3, rot_x, rot_y, rot_z);
+
+    rot_x = angel_x_axis(ret.p3, ret.p1);
+    rot_y = angel_y_axis(ret.p3, ret.p1);
+    rot_z = 0.0; // angel_z_axis(ret.p1, ret.p2);
+    ret.p1 = rotate_xyz_axis(ret.p3, ret.p1, rot_x, rot_y, rot_z);
+    ret.p3 = rotate_xyz_axis(ret.p3, ret.p3, rot_x, rot_y, rot_z);
 
     // rot_x = angel_x_axis(ret.p2, ret.p3);
     // rot_y = angel_y_axis(ret.p2, ret.p3);
@@ -223,13 +226,13 @@ function rotate_triangle_to_z_axis(tr1) {
     // ret.p3 = rotate_xyz_axis(ret.p2, ret.p3, rot_x, rot_y, rot_z);
     
     // parallel to z
-    rot = angel_z_axis(ret.p1, ret.p2);
-    ret.p2 = rotate_z_axis(ret.p1, ret.p2, rot);
-    ret.p3 = rotate_z_axis(ret.p1, ret.p3, rot);
-
-    rot = angel_x_axis(ret.p2, ret.p3);
-    ret.p1 = rotate_x_axis(ret.p2, ret.p1, rot);
-    ret.p3 = rotate_x_axis(ret.p2, ret.p3, rot);
+    // rot = angel_z_axis(ret.p1, ret.p2);
+    // ret.p2 = rotate_z_axis(ret.p1, ret.p2, rot);
+    // ret.p3 = rotate_z_axis(ret.p1, ret.p3, rot);
+// 
+    // rot = angel_x_axis(ret.p2, ret.p3);
+    // ret.p1 = rotate_x_axis(ret.p2, ret.p1, rot);
+    // ret.p3 = rotate_x_axis(ret.p2, ret.p3, rot);
 
     // rot = angel_y_axis(ret.p3, ret.p1);
     // ret.p2 = rotate_y_axis(ret.p1, ret.p2, rot);
@@ -265,19 +268,6 @@ function rotate_triangle_to_z_axis(tr1) {
     // var rot_x = angel_x_axis(ret.p3, ret.p1);
     // ret.p1 = rotate_y_axis(ret.p3, ret.p1, rot_x);
     // ret.p2 = rotate_y_axis(ret.p3, ret.p2, rot_x);
-
-    
-
-    // var rot_yz = angel(
-    //     ret.p1.y, ret.p1.z,
-    //     ret.p2.y, ret.p2.z
-    // );
-
-    // ret.p2 = rotate_x_azis(ret.p1, ret.p2, rot_yz);
-    // ret.p3 = rotate_x_azis(ret.p1, ret.p3, rot_yz);
-
-
-    // rotate_z_azis()
 
     return ret
 }
