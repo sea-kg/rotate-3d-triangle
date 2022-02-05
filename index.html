@@ -1,0 +1,219 @@
+<canvas id="canvas" width=1024px height=1024px></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+var max_size = 200;
+
+var triangle1 = {
+    p1: {x: 20, y: 60, z: 40},
+    p2: {x: 20, y: 60, z: 40},
+    p3: {x: 20, y: 60, z: 40},
+};
+
+var triangle2 = {
+    p1: {x: 20, y: 60, z: 40},
+    p2: {x: 20, y: 60, z: 40},
+    p3: {x: 20, y: 60, z: 40},
+};
+
+function rand_coord() {
+    return Math.floor(Math.random() * (max_size - 50) - (max_size - 50)/2); 
+}
+
+triangle1.p1.x = 0; rand_coord();
+triangle1.p1.y = 0; rand_coord();
+triangle1.p1.z = 0; rand_coord();
+
+triangle1.p2.x = rand_coord();
+triangle1.p2.y = rand_coord();
+triangle1.p2.z = rand_coord();
+
+triangle1.p3.x = rand_coord();
+triangle1.p3.y = rand_coord();
+triangle1.p3.z = rand_coord();
+
+triangle2.p1.x = triangle1.p1.x;
+triangle2.p1.y = triangle1.p1.y;
+triangle2.p1.z = triangle1.p1.z;
+
+triangle2.p2.x = triangle1.p2.x;
+triangle2.p2.y = triangle1.p2.y;
+triangle2.p2.z = triangle1.p2.z;
+
+triangle2.p3.x = triangle1.p3.x;
+triangle2.p3.y = triangle1.p3.y;
+triangle2.p3.z = triangle1.p3.z;
+
+function vec_length(v0, v1) {
+    var dx = v1.x - v0.x;
+    var dy = v1.y - v0.y;
+    var dz = v1.z - v0.z;
+
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+function draw_net(namex, namey, px, py) {
+    ctx.lineWidth = 1;
+    // coordinates 
+    ctx.beginPath();
+    ctx.moveTo(px + 10, py + max_size/2);
+    ctx.lineTo(px + max_size - 20, py + max_size/2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(px + max_size/2, py + 10);
+    ctx.lineTo(px + max_size/2, py + max_size - 20);
+    ctx.stroke();
+
+    ctx.fillText(namey, px + max_size/2 + 5, py + 10);
+    ctx.fillText(namex, px + max_size - 20, py + max_size/2 - 5);
+}
+
+function draw_line(px, py, x0, y0, x1, y1) {
+    // vector
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px + max_size/2 + x0, py + max_size/2 - y0);
+    ctx.lineTo(px + max_size/2 + x1, py + max_size/2 - y1);
+    ctx.stroke();
+}
+
+function draw_triangle(trgl, y) {
+    draw_net("x", "y", 0, y);
+    draw_line(  0, y, trgl.p1.x, trgl.p1.y, trgl.p2.x, trgl.p2.y);
+    draw_line(  0, y, trgl.p2.x, trgl.p2.y, trgl.p3.x, trgl.p3.y);
+    draw_line(  0, y, trgl.p3.x, trgl.p3.y, trgl.p1.x, trgl.p1.y);
+
+    draw_net("x", "z", 200, y);
+    draw_line(200, y, trgl.p1.x, trgl.p1.z, trgl.p2.x, trgl.p2.z);
+    draw_line(200, y, trgl.p2.x, trgl.p2.z, trgl.p3.x, trgl.p3.z);
+    draw_line(200, y, trgl.p3.x, trgl.p3.z, trgl.p1.x, trgl.p1.z);
+
+    draw_net("y", "z", 400, y);
+    draw_line(400, y, trgl.p1.y, trgl.p1.z, trgl.p2.y, trgl.p2.z);
+    draw_line(400, y, trgl.p2.y, trgl.p2.z, trgl.p3.y, trgl.p3.z);
+    draw_line(400, y, trgl.p3.y, trgl.p3.z, trgl.p1.y, trgl.p1.z);   
+}
+
+draw_triangle(triangle1, 0)
+
+function rotate_vec(vec0, vec1) {
+    var ret = {};
+    ret.x = 0;
+    ret.y = 0;
+    ret.z = 0;
+    var dx = vec1.x - vec0.x;
+    var dy = vec1.y - vec0.y;
+    var dz = vec1.z - vec0.z;
+
+    _lenxz = Math.sqrt(dx * dx + dz * dz);
+    _lenyz = Math.sqrt(dy * dy + dz * dz);
+
+    var angelXZ = Math.asin(dx / _lenxz);
+    console.log("angelXZ = ", angelXZ);
+
+    if (dz < 0) {
+        angelXZ = Math.PI - angelXZ
+    }
+
+    
+    var angelYZ = Math.asin(dy / _lenyz);
+    console.log("angelYZ = ", angelYZ)
+    if (dz < 0) {
+        angelYZ = Math.PI - angelYZ
+    }
+
+    ret.x = vec0.x
+        + (dx * Math.sin(angelXZ) + dz * Math.cos(angelXZ))
+        + (dy * Math.cos(angelYZ) - dz * Math.sin(angelYZ));
+    // ret.y = vec1.y; // * Math.sin(Math.PI/2 - angelYZ) - vec1.z * Math.cos(Math.PI/2 - angelYZ);
+    ret.y = vec0.y
+        + (dx * Math.sin(angelXZ) + dz * Math.cos(angelXZ))
+        + (dy * Math.cos(angelYZ) - dz * Math.sin(angelYZ))
+    ;
+    ret.z = 0;
+    return ret
+}
+
+// rotate_vec
+
+// var angelXZ = Math.asin(vec1.x / vec2_length(vec1.x,vec1.z));
+// console.log("angelXZ = ", angelXZ)
+
+// if (vec1.z < 0) {
+//     angelXZ = Math.PI - angelXZ
+// } else {
+//     // angelXZ = Math.PI/2 - angelXZ
+// }
+
+// var angelYZ = Math.acos(vec1.y / vec2_length(vec1.y,vec1.z));
+// console.log("angelYZ = ", angelYZ)
+
+function compare(vec00, vec01, vec10, vec11) {
+    vec0_len = vec_length(vec00, vec01);
+    vec1_len = vec_length(vec10, vec11);
+
+    console.log("vec0", vec0_len);
+    console.log("vec1", vec1_len);
+
+    vec0_len = Math.floor(vec0_len).toFixed(4);
+    vec1_len = Math.floor(vec1_len).toFixed(4);
+    
+    // console.log("vec0", vec0_len);
+    // console.log("vec1", vec1_len);
+    console.log("vec1", vec0_len == vec1_len);
+    return vec0_len == vec1_len;
+}
+
+
+// vec2.z = 0
+// vec2.x = vec1.x * Math.sin(angelXZ) + vec1.z * Math.cos(angelXZ);
+// vec2.y = vec1.y; // * Math.sin(Math.PI/2 - angelYZ) - vec1.z * Math.cos(Math.PI/2 - angelYZ);
+
+vec000 = {x: 0.0, y: 0.0, z: 0.0}
+
+_p2 = rotate_vec(vec000, triangle1.p2)
+console.log(vec_length(vec000, triangle1.p2));
+console.log(vec_length(vec000, _p2));
+compare(
+    vec000, triangle1.p2,
+    vec000, _p2
+)
+
+triangle2.p1 = rotate_vec(triangle1.p3, triangle1.p1)
+triangle2.p2 = rotate_vec(triangle1.p1, triangle1.p2)
+triangle2.p3 = rotate_vec(triangle1.p1, triangle1.p3)
+
+compare(
+    triangle2.p1, triangle2.p2,
+    triangle1.p1, triangle1.p2
+)
+compare(
+    triangle2.p2, triangle2.p3,
+    triangle1.p2, triangle1.p3
+)
+compare(
+    triangle2.p3, triangle2.p1,
+    triangle1.p3, triangle1.p1
+)
+
+// triangle2.p1 = rotate_vec(triangle2.p1, triangle2.p2)
+// triangle2.p3 = rotate_vec(triangle2.p2, triangle2.p3)
+// triangle2.p1 = rotate_vec(triangle2.p3, triangle2.p1)
+
+draw_triangle(triangle2, 200)
+
+// // draw_line("x", "y",   0, 200, vec2.x, vec2.y);
+// // draw_line("x", "z", 200, 200, vec2.x, vec2.z);
+// // draw_line("y", "z", 400, 200, vec2.y, vec2.z);
+
+// console.log("vec2", vec_length(vec2));
+
+// vec1_len = Math.floor(vec_length(vec1)).toFixed(4)
+// vec2_len = Math.floor(vec_length(vec2)).toFixed(4)
+
+// console.log("compare", vec1_len == vec2_len);
+
+</script>
