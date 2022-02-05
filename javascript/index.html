@@ -1,0 +1,185 @@
+
+<table>
+    <tr>
+        <td style="vertical-align: top;">
+            <canvas id="canvas" width=950px height=950px></canvas>
+        </td>
+        <td style="vertical-align: top;">
+            <pre id="log"></pre>
+        </td>
+
+    </tr>
+
+<script type="text/javascript" src="rotate_triangle_to_z_axis.js"></script>
+
+<script>
+
+const el = document.getElementById('log');
+
+function loginfo(s){
+    el.innerHTML += s + "\n";
+    console.log(s);
+}
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+var max_size = 300;
+
+var triangle1 = {
+    p1: {x: 20, y: 60, z: 40},
+    p2: {x: 20, y: 60, z: 40},
+    p3: {x: 20, y: 60, z: 40},
+};
+
+function rand_coord() {
+    return Math.floor(Math.random() * (max_size - 75) - (max_size - 75)/2); 
+}
+
+triangle1.p1.x = rand_coord();
+triangle1.p1.y = rand_coord();
+triangle1.p1.z = rand_coord();
+
+triangle1.p2.x = rand_coord();
+triangle1.p2.y = rand_coord();
+triangle1.p2.z = rand_coord();
+
+triangle1.p3.x = rand_coord();
+triangle1.p3.y = rand_coord();
+triangle1.p3.z = rand_coord();
+
+function vec_length(v0, v1) {
+    var dx = v1.x - v0.x;
+    var dy = v1.y - v0.y;
+    var dz = v1.z - v0.z;
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+function radToDeg (rad) {
+	return (rad * 180) / Math.PI;
+}
+
+function compare(name, vec00, vec01, vec10, vec11) {
+    vec0_len = vec_length(vec00, vec01);
+    vec1_len = vec_length(vec10, vec11);
+
+    loginfo(name + " vec_len_before = " + vec0_len);
+    loginfo(name + " vec_len_after = " + vec1_len);
+
+    vec0_len = Math.floor(vec0_len).toFixed(4);
+    vec1_len = Math.floor(vec1_len).toFixed(4);
+    
+    // console.log("vec0", vec0_len);
+    // console.log("vec1", vec1_len);
+    loginfo(name + " compare = " + (vec0_len == vec1_len));
+    return vec0_len == vec1_len;
+}
+
+var triangle2 = triangle1;
+triangle2 = rotate_triangle_to_z_axis(triangle2);
+
+compare(
+    "p1-p2",
+    triangle2.p1, triangle2.p2,
+    triangle1.p1, triangle1.p2
+)
+compare(
+    "p2-p3",
+    triangle2.p2, triangle2.p3,
+    triangle1.p2, triangle1.p3
+)
+compare(
+    "p3-p1",
+    triangle2.p3, triangle2.p1,
+    triangle1.p3, triangle1.p1
+)
+
+// drawing
+
+function draw_net(namex, namey, px, py) {
+    px = px * max_size;
+    
+    ctx.lineWidth = 1;
+    // coordinates 
+    ctx.beginPath();
+    ctx.moveTo(px + 10, py + max_size/2);
+    ctx.lineTo(px + max_size - 20, py + max_size/2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(px + max_size/2, py + 10);
+    ctx.lineTo(px + max_size/2, py + max_size - 20);
+    ctx.stroke();
+
+    ctx.fillText(namey, px + max_size/2 + 5, py + 10);
+    ctx.fillText(namex, px + max_size - 20, py + max_size/2 - 5);
+}
+
+function draw_line(name0, px, py, x0, y0, x1, y1) {
+    px = px * max_size;
+
+    // vector
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px + max_size/2 + x0, py + max_size/2 - y0);
+    ctx.lineTo(px + max_size/2 + x1, py + max_size/2 - y1);
+    ctx.stroke();
+    dy0 = 10;
+    dy1 = 10;
+    if (y0 > y1) {
+        dy0 = -10;
+        dy1 = 10;
+    } else {
+        dy0 = 10;
+        dy1 = -10;
+    }
+    ctx.fillText(name0 + " (" + x0.toFixed(2) + ", " + y0.toFixed(2) + ")", px + max_size/2 + x0 + 5, py + max_size/2 - y0 + dy0);
+    // ctx.fillText("b (" + x1.toFixed(2) + ", " + y1.toFixed(2) + ")", px + max_size/2 + x1 + 5, py + max_size/2 - y1 + dy1);
+}
+
+function draw_middle_point(px, py, x0, y0) {
+    px = px * max_size;
+
+    // vector
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(px + max_size/2 + x0, py + max_size/2 - y0, 2, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function draw_triangle(trgl, y) {
+    y = y * max_size;
+    p0 = middle_point(trgl);
+    draw_net("x", "y", 0, y);
+    draw_line("p1xy",  0, y, trgl.p1.x, trgl.p1.y, trgl.p2.x, trgl.p2.y);
+    draw_line("p2xy",  0, y, trgl.p2.x, trgl.p2.y, trgl.p3.x, trgl.p3.y);
+    draw_line("p3xy",  0, y, trgl.p3.x, trgl.p3.y, trgl.p1.x, trgl.p1.y);
+    draw_middle_point(0, y, p0.x, p0.y);
+
+    draw_net("x", "z", 1, y);
+    draw_line("p1xz", 1, y, trgl.p1.x, trgl.p1.z, trgl.p2.x, trgl.p2.z);
+    draw_line("p2xz", 1, y, trgl.p2.x, trgl.p2.z, trgl.p3.x, trgl.p3.z);
+    draw_line("p3xz", 1, y, trgl.p3.x, trgl.p3.z, trgl.p1.x, trgl.p1.z);
+    draw_middle_point(1, y, p0.x, p0.z);
+
+    draw_net("y", "z", 2, y);
+    draw_line("p1yz", 2, y, trgl.p1.y, trgl.p1.z, trgl.p2.y, trgl.p2.z);
+    draw_line("p2yz", 2, y, trgl.p2.y, trgl.p2.z, trgl.p3.y, trgl.p3.z);
+    draw_line("p3yz", 2, y, trgl.p3.y, trgl.p3.z, trgl.p1.y, trgl.p1.z);   
+    draw_middle_point(2, y, p0.y, p0.z);
+}
+
+function redraw() {
+    console.log("redraw");
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, 1024, 1024);
+    ctx.fillStyle = "black";
+    draw_triangle(triangle1, 0);
+    draw_triangle(triangle2, 1);
+};
+
+redraw();
+
+setInterval(redraw, 1000);
+
+</script>
