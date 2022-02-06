@@ -189,89 +189,18 @@ function rotate_triangle_to_z_axis(tr1) {
     ret.middle_p = middle_point(ret);
     ret.middle_p_normal = middle_point_normal(ret);
     var rot = 0.0;
-
-    // z-y
-    /*
-    p0 = middle_point(ret);
-    rot = angel_x_axis(p0, ret.p1);
-    ret.p1 = rotate_x_axis(p0, ret.p1, rot);
-    ret.p2 = rotate_x_axis(p0, ret.p2, rot);
-    ret.p3 = rotate_x_axis(p0, ret.p3, rot);
-
-    p0 = middle_point(ret);
-    rot = angel_y_axis(p0, ret.p1);
-    ret.p1 = rotate_y_axis(p0, ret.p1, rot);
-    ret.p2 = rotate_y_axis(p0, ret.p2, rot);
-    ret.p3 = rotate_y_axis(p0, ret.p3, rot);
-
-    rot = angel_z_axis(ret.p1, ret.p2);
-    ret.p2 = rotate_z_axis(ret.p1, ret.p2, rot);
-    ret.p3 = rotate_z_axis(ret.p1, ret.p3, rot);
-    */
-
-    // z-y
-    p0 = middle_point(ret);
-    rot = angel_z_axis(p0, ret.p1);
-    ret.p1 = rotate_z_axis(p0, ret.p1, rot);
-    ret.p2 = rotate_z_axis(p0, ret.p2, rot);
-    ret.p3 = rotate_z_axis(p0, ret.p3, rot);
-
-    p0 = middle_point(ret);
-    rot = angel_x_axis(p0, ret.p1);
-    ret.p1 = rotate_x_axis(p0, ret.p1, rot);
-    ret.p2 = rotate_x_axis(p0, ret.p2, rot);
-    ret.p3 = rotate_x_axis(p0, ret.p3, rot);
-
-    rot = angel_z_axis(ret.p3, ret.p1);
-    ret.p1 = rotate_z_axis(ret.p3, ret.p1, rot);
-    ret.p2 = rotate_z_axis(ret.p3, ret.p2, rot);
     
+    rot = angel_x_axis(ret.middle_p, ret.middle_p_normal);
+    ret.p1 = rotate_x_axis(ret.middle_p, ret.p1, rot);
+    ret.p2 = rotate_x_axis(ret.middle_p, ret.p2, rot);
+    ret.p3 = rotate_x_axis(ret.middle_p, ret.p3, rot);
 
-    // var dx = ret.p2.x - ret.p1.x;
-    // var dy = ret.p2.y - ret.p1.y;
-    // var dz = ret.p2.z - ret.p1.z;
-
-    // var p0 = {};
-    // p0.x = ret.p1.x - dx;
-    // p0.y = ret.p1.y - dy;
-    // p0.z = ret.p1.z - dz;
-
-    // rot = angel_x_axis(p0, ret.p1);
-    // ret.p1 = rotate_x_axis(p0, ret.p1, rot);
-    // ret.p2 = rotate_x_axis(p0, ret.p2, rot);
-    // ret.p3 = rotate_x_axis(p0, ret.p3, rot);
-
-    // rot = angel_y_axis(p0, ret.p1);
-    // ret.p1 = rotate_y_axis(p0, ret.p1, rot);
-    // ret.p2 = rotate_y_axis(p0, ret.p2, rot);
-    // ret.p3 = rotate_y_axis(p0, ret.p3, rot);
-
-    // rot = -1.0 * angel_z_axis(p0, ret.p1);
-    // ret.p1 = rotate_z_axis(p0, ret.p1, rot);
-    // ret.p2 = rotate_z_axis(p0, ret.p2, rot);
-    // ret.p3 = rotate_z_axis(p0, ret.p3, rot);
-
-
-    // p0 = middle_point(ret);
-    // p0 = rotate_x_axis(ret.p1, p0, Math.PI/2);
-    // p0 = rotate_y_axis(ret.p1, p0, Math.PI/2);
-
-    console.log(angel_x_axis(ret.p1, p0));
-    console.log(angel_y_axis(ret.p1, p0));
-    console.log(angel_z_axis(ret.p1, p0));
-
-//     ret.p2 = p0;
-    
-
-    // rot = angel_x_axis(ret.p1, p0);
-    // ret.p1 = rotate_x_axis(p0, ret.p1, rot);
-    // ret.p2 = rotate_x_axis(p0, ret.p2, rot);
-    // ret.p3 = rotate_x_axis(p0, ret.p3, rot);
-// 
-    // rot = angel_y_axis(ret.p1, p0);
-    // ret.p1 = rotate_y_axis(p0, ret.p1, rot);
-    // ret.p2 = rotate_y_axis(p0, ret.p2, rot);
-    // ret.p3 = rotate_y_axis(p0, ret.p3, rot);
+    ret.middle_p = middle_point(ret);
+    ret.middle_p_normal = middle_point_normal(ret);
+    rot = angel_y_axis(ret.middle_p, ret.middle_p_normal);
+    ret.p1 = rotate_y_axis(ret.middle_p, ret.p1, rot);
+    ret.p2 = rotate_y_axis(ret.middle_p, ret.p2, rot);
+    ret.p3 = rotate_y_axis(ret.middle_p, ret.p3, rot);
    
     ret.middle_p = middle_point(ret);
     ret.middle_p_normal = middle_point_normal(ret);
