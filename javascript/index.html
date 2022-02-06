@@ -16,7 +16,7 @@
 
 <script type="text/javascript" src="three.js"></script>
 <script type="text/javascript" src="OrbitControls.min.js"></script>
-<script type="text/javascript" src="rotate_triangle_to_z_axis.js"></script>
+<script type="text/javascript" src="rotate_triangle_to_z_plane.js"></script>
 
 <script>
 
@@ -87,7 +87,7 @@ function compare(name, vec00, vec01, vec10, vec11) {
 }
 
 var triangle2 = triangle1;
-triangle2 = rotate_triangle_to_z_axis(triangle2);
+triangle2 = rotate_triangle_to_z_plane(triangle2);
 
 compare(
     "p1-p2",

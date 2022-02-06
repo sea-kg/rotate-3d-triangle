@@ -173,7 +173,7 @@ function middle_point_normal(tr) {
 }
 
 
-function rotate_triangle_to_z_axis(tr1) {
+function rotate_triangle_to_z_plane(tr1) {
     var ret = {p1:{},p2:{},p3:{}};
     ret.p1.x = tr1.p1.x;
     ret.p1.y = tr1.p1.y;
