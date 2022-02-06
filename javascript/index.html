@@ -2,14 +2,20 @@
 <table>
     <tr>
         <td style="vertical-align: top;">
-            <canvas id="canvas" width=950px height=950px></canvas>
+            <canvas id="canvas" width=950px height=650px></canvas>
         </td>
         <td style="vertical-align: top;">
             <pre id="log"></pre>
         </td>
-
+        
+    </tr>
+    <tr>
+        <td style="vertical-align: top;" id="canvas_3d">
+        </td>
     </tr>
 
+<script type="text/javascript" src="three.js"></script>
+<script type="text/javascript" src="OrbitControls.min.js"></script>
 <script type="text/javascript" src="rotate_triangle_to_z_axis.js"></script>
 
 <script>
@@ -28,8 +34,10 @@ var max_size = 300;
 
 var triangle1 = {
     p1: {x: 20, y: 60, z: 40},
-    p2: {x: 20, y: 60, z: 40},
-    p3: {x: 20, y: 60, z: 40},
+    p2: {x: 60, y: 10, z: 100},
+    p3: {x: 70, y: 40, z: 70},
+    middle_p: {},
+    middle_p_normal: {},
 };
 
 function rand_coord() {
@@ -47,6 +55,9 @@ triangle1.p2.z = rand_coord();
 triangle1.p3.x = rand_coord();
 triangle1.p3.y = rand_coord();
 triangle1.p3.z = rand_coord();
+
+triangle1.middle_p = middle_point(triangle1);
+triangle1.middle_p_normal = middle_point_normal(triangle1);
 
 function vec_length(v0, v1) {
     var dx = v1.x - v0.x;
@@ -149,24 +160,23 @@ function draw_middle_point(px, py, x0, y0) {
 
 function draw_triangle(trgl, y) {
     y = y * max_size;
-    p0 = middle_point(trgl);
     draw_net("x", "y", 0, y);
-    draw_line("p1xy",  0, y, trgl.p1.x, trgl.p1.y, trgl.p2.x, trgl.p2.y);
-    draw_line("p2xy",  0, y, trgl.p2.x, trgl.p2.y, trgl.p3.x, trgl.p3.y);
-    draw_line("p3xy",  0, y, trgl.p3.x, trgl.p3.y, trgl.p1.x, trgl.p1.y);
-    draw_middle_point(0, y, p0.x, p0.y);
+    draw_line("p1xy", 0, y, trgl.p1.x, trgl.p1.y, trgl.p2.x, trgl.p2.y);
+    draw_line("p2xy", 0, y, trgl.p2.x, trgl.p2.y, trgl.p3.x, trgl.p3.y);
+    draw_line("p3xy", 0, y, trgl.p3.x, trgl.p3.y, trgl.p1.x, trgl.p1.y);
+    draw_line("n"   , 0, y, trgl.middle_p.x, trgl.middle_p.y, trgl.middle_p_normal.x, trgl.middle_p_normal.y)
 
     draw_net("x", "z", 1, y);
     draw_line("p1xz", 1, y, trgl.p1.x, trgl.p1.z, trgl.p2.x, trgl.p2.z);
     draw_line("p2xz", 1, y, trgl.p2.x, trgl.p2.z, trgl.p3.x, trgl.p3.z);
     draw_line("p3xz", 1, y, trgl.p3.x, trgl.p3.z, trgl.p1.x, trgl.p1.z);
-    draw_middle_point(1, y, p0.x, p0.z);
+    draw_line("n"   , 1, y, trgl.middle_p.x, trgl.middle_p.z, trgl.middle_p_normal.x, trgl.middle_p_normal.z)
 
     draw_net("y", "z", 2, y);
     draw_line("p1yz", 2, y, trgl.p1.y, trgl.p1.z, trgl.p2.y, trgl.p2.z);
     draw_line("p2yz", 2, y, trgl.p2.y, trgl.p2.z, trgl.p3.y, trgl.p3.z);
     draw_line("p3yz", 2, y, trgl.p3.y, trgl.p3.z, trgl.p1.y, trgl.p1.z);   
-    draw_middle_point(2, y, p0.y, p0.z);
+    draw_line("n"   , 2, y, trgl.middle_p.y, trgl.middle_p.z, trgl.middle_p_normal.y, trgl.middle_p_normal.z)
 }
 
 function redraw() {
@@ -180,6 +190,94 @@ function redraw() {
 
 redraw();
 
-setInterval(redraw, 1000);
+// setInterval(redraw, 1000);
+
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+    camera.position.set( 0, 0, 300 );
+    camera.lookAt( 0, 0, 0 );
+    
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize( 500, 500 );
+    document.getElementById('canvas_3d').appendChild( renderer.domElement );
+
+    
+
+    var objects = []
+
+    function create_lines(in_points, material) {
+        var points = [];
+        for (var i in in_points) {
+            points.push( new THREE.Vector3( in_points[i].x, in_points[i].y, in_points[i].z ) );
+        }
+        var geometry = new THREE.BufferGeometry().setFromPoints( points );
+        obj = new THREE.Line( geometry, material );
+        objects.push(obj)
+        scene.add(obj);
+    }
+
+
+    const material0 = new THREE.LineBasicMaterial( { color: 0x00ff00 } );
+    create_lines([triangle1.p1, triangle1.p2, triangle1.p3, triangle1.p1], material0)
+    create_lines([triangle1.middle_p, triangle1.middle_p_normal], material0)
+
+    const material1 = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    create_lines([triangle2.p1, triangle2.p2, triangle2.p3, triangle2.p1], material1)
+    create_lines([triangle2.middle_p, triangle2.middle_p_normal], material1)
+
+    // x axis yellow
+    const material2 = new THREE.LineBasicMaterial( { color: 0xe5eb2a } );
+    create_lines([{x: -200, y: 0, z: 0}, {x: 200, y: 0, z: 0}], material2)
+
+    // y axis red
+    const material3 = new THREE.LineBasicMaterial( { color: 0xeb412a } );
+    create_lines([{x: 0, y: -200, z: 0}, {x: 0, y: 200, z: 0}], material3)
+
+    // z axis blue
+    const material4 = new THREE.LineBasicMaterial( { color: 0x2a7ceb } );
+    create_lines([{x: 0, y: 0, z: -200}, {x: 0, y: 0, z: 200}], material4)
+
+    // obj3 = create_lines([triangle2.p1, triangle2.p2, triangle2.p3, triangle2.p1], material)
+    // objects.push(obj3)
+    // scene.add( obj3 );
+
+
+    //const geometry = new THREE.BoxGeometry();
+    //const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    //const cube = new THREE.Mesh( geometry, material );
+    // scene.add( cube );
+
+    // camera.position.z = 5;
+
+    renderer.render( scene, camera );
+    
+    const controls = new THREE.OrbitControls( camera, renderer.domElement );
+    controls.update();
+
+    function animate() {
+        requestAnimationFrame( animate );
+
+        // camera.rotation.x += 0.01;
+        // camera.rotation.y += 0.01;
+
+        // for (var i in objects) {
+        //     objects[i].rotation.x += 0.01;
+        //     objects[i].rotation.y += 0.01;
+        //     // objects[i].rotation.z += 0.01;
+        // }
+        controls.update();
+
+
+        // trinagle2.rotation.x += 0.01;
+        // trinagle2.rotation.y += 0.01;
+
+        renderer.render( scene, camera );
+    };
+
+    animate();
+
 
 </script>

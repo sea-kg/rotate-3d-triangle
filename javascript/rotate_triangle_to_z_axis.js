@@ -119,6 +119,60 @@ function middle_point(tr) {
     return ret;
 }
 
+function middle_point_normal(tr) {
+
+    var dx = tr.p1.x - tr.middle_p.x;
+    var dy = tr.p1.y - tr.middle_p.y;
+    var dz = tr.p1.z - tr.middle_p.z;
+
+    // http://mathprofi.ru/uravnenie_ploskosti.html
+    // | x - x1 , x2 - x1, x3 - x1 | 
+    // | y - y1 , y2 - y1, y3 - y1 | = 0
+    // | z - z1 , z2 - z1, z3 - z1 |
+
+    // x21 = x2 - x1
+    // y21 = y2 - y1
+    // z21 = z2 - z1
+    // x31 = x3 - x1
+    // y31 = y3 - y1
+    // z31 = z3 - z1
+    
+    // | x - x1 , x21, x31 | 
+    // | y - y1 , y21, y31 | = 0
+    // | z - z1 , z21, z31 |
+
+    // (x - x1) * | y21, y31 | - (y - y1) * | x21, x31 | + (z - z1) * | x21, x31 |
+    //            | z21, z31 |              | z21, z31 |              | y21, y31 |
+
+
+    // (x - x1) * (y21*z31 - y31*z21) - (y - y1) * (x21*z31 - x31*z21) + (z - z1) * (x21*y31 - x31*y21) = 0
+
+    // x * (y21*z31 - y31*z21) - x0 * (y21*z31 - y31*z21)
+    // - y * (x21*z31 - x31*z21) + y0 * (x21*z31 - x31*z21)
+    // + z * (x21*y31 - x31*y21)) - z0 * (x21*y31 - x31*y21)
+
+    // a = (y10*z20 - y20*z10)
+    // b = -(x10*z20 - x20*z10)
+    // c = (x10*y20 - x20*y10)
+    // d = - x0 * (y10*z20 - y20*z10) + y0 * (x10*z20 - x20*z10) - z0 * (x10*y20 - x20*y10)
+
+    // a * x + b * y + c * z + d = 0
+    
+    var x10 = tr.p2.x - tr.p1.x;
+    var y10 = tr.p2.y - tr.p1.y;
+    var z10 = tr.p2.z - tr.p1.z;
+    var x20 = tr.p3.x - tr.p1.x;
+    var y20 = tr.p3.y - tr.p1.y;
+    var z20 = tr.p3.z - tr.p1.z;
+
+    var ret = {}
+    ret.x = tr.middle_p.x + (y10*z20 - y20*z10)
+    ret.y = tr.middle_p.y + -1.0 * (x10*z20 - x20*z10)
+    ret.z = tr.middle_p.z + (x10*y20 - x20*y10)
+    return ret;
+}
+
+
 function rotate_triangle_to_z_axis(tr1) {
     var ret = {p1:{},p2:{},p3:{}};
     ret.p1.x = tr1.p1.x;
@@ -132,7 +186,8 @@ function rotate_triangle_to_z_axis(tr1) {
     ret.p3.x = tr1.p3.x;
     ret.p3.y = tr1.p3.y;
     ret.p3.z = tr1.p3.z;
-    
+    ret.middle_p = middle_point(ret);
+    ret.middle_p_normal = middle_point_normal(ret);
     var rot = 0.0;
 
     // z-y
@@ -156,13 +211,13 @@ function rotate_triangle_to_z_axis(tr1) {
 
     // z-y
     p0 = middle_point(ret);
-    rot = angel_z_axis(p0, ret.p3);
+    rot = angel_z_axis(p0, ret.p1);
     ret.p1 = rotate_z_axis(p0, ret.p1, rot);
     ret.p2 = rotate_z_axis(p0, ret.p2, rot);
     ret.p3 = rotate_z_axis(p0, ret.p3, rot);
 
     p0 = middle_point(ret);
-    rot = angel_x_axis(p0, ret.p3);
+    rot = angel_x_axis(p0, ret.p1);
     ret.p1 = rotate_x_axis(p0, ret.p1, rot);
     ret.p2 = rotate_x_axis(p0, ret.p2, rot);
     ret.p3 = rotate_x_axis(p0, ret.p3, rot);
@@ -170,6 +225,55 @@ function rotate_triangle_to_z_axis(tr1) {
     rot = angel_z_axis(ret.p3, ret.p1);
     ret.p1 = rotate_z_axis(ret.p3, ret.p1, rot);
     ret.p2 = rotate_z_axis(ret.p3, ret.p2, rot);
+    
 
+    // var dx = ret.p2.x - ret.p1.x;
+    // var dy = ret.p2.y - ret.p1.y;
+    // var dz = ret.p2.z - ret.p1.z;
+
+    // var p0 = {};
+    // p0.x = ret.p1.x - dx;
+    // p0.y = ret.p1.y - dy;
+    // p0.z = ret.p1.z - dz;
+
+    // rot = angel_x_axis(p0, ret.p1);
+    // ret.p1 = rotate_x_axis(p0, ret.p1, rot);
+    // ret.p2 = rotate_x_axis(p0, ret.p2, rot);
+    // ret.p3 = rotate_x_axis(p0, ret.p3, rot);
+
+    // rot = angel_y_axis(p0, ret.p1);
+    // ret.p1 = rotate_y_axis(p0, ret.p1, rot);
+    // ret.p2 = rotate_y_axis(p0, ret.p2, rot);
+    // ret.p3 = rotate_y_axis(p0, ret.p3, rot);
+
+    // rot = -1.0 * angel_z_axis(p0, ret.p1);
+    // ret.p1 = rotate_z_axis(p0, ret.p1, rot);
+    // ret.p2 = rotate_z_axis(p0, ret.p2, rot);
+    // ret.p3 = rotate_z_axis(p0, ret.p3, rot);
+
+
+    // p0 = middle_point(ret);
+    // p0 = rotate_x_axis(ret.p1, p0, Math.PI/2);
+    // p0 = rotate_y_axis(ret.p1, p0, Math.PI/2);
+
+    console.log(angel_x_axis(ret.p1, p0));
+    console.log(angel_y_axis(ret.p1, p0));
+    console.log(angel_z_axis(ret.p1, p0));
+
+//     ret.p2 = p0;
+    
+
+    // rot = angel_x_axis(ret.p1, p0);
+    // ret.p1 = rotate_x_axis(p0, ret.p1, rot);
+    // ret.p2 = rotate_x_axis(p0, ret.p2, rot);
+    // ret.p3 = rotate_x_axis(p0, ret.p3, rot);
+// 
+    // rot = angel_y_axis(ret.p1, p0);
+    // ret.p1 = rotate_y_axis(p0, ret.p1, rot);
+    // ret.p2 = rotate_y_axis(p0, ret.p2, rot);
+    // ret.p3 = rotate_y_axis(p0, ret.p3, rot);
+   
+    ret.middle_p = middle_point(ret);
+    ret.middle_p_normal = middle_point_normal(ret);
     return ret
 }
